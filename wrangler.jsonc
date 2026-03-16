@@ -3,7 +3,10 @@
   "main": ".open-next/worker.js",
   "name": "learning-game",
   "compatibility_date": "2026-03-16",
-  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS"
@@ -18,7 +21,7 @@
     {
       "binding": "DB",
       "database_name": "learning-game-db",
-      "database_id": "REPLACE_WITH_D1_DATABASE_ID"
+      "database_id": "303b910f-cbe7-4c61-bfed-df704528e9be"
     }
   ],
   "r2_buckets": [
