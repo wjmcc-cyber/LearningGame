@@ -74,7 +74,7 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
       <section className="card px-6 py-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <div className="pill bg-[var(--accent-soft)] text-[var(--accent)]">
+            <div className="pill accent-chip">
               {attempt.responses.length}/{attempt.quiz.questions.length} answered
             </div>
             <h1 className="display-title mt-4 text-3xl font-bold">{attempt.quiz.title}</h1>
@@ -90,15 +90,11 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
 
       {lastResponse && lastQuestion ? (
         <section className="card px-6 py-6">
-          <div
-            className={`rounded-3xl px-5 py-5 ${
-              lastResponse.isCorrect ? "alert-success" : "alert-error"
-            }`}
-          >
+          <div className="paper-card rounded-[1.75rem] px-5 py-5">
             <div className={`text-sm font-semibold ${lastResponse.isCorrect ? "status-positive" : "status-negative"}`}>
               {lastResponse.isCorrect ? "Correct: +100 points" : "Incorrect"}
             </div>
-            <h2 className="mt-3 text-xl font-bold">{lastQuestion.prompt}</h2>
+            <h2 className="mt-3 text-xl font-bold text-[var(--ink)]">{lastQuestion.prompt}</h2>
             <div className="mt-5 space-y-3">
               {JSON.parse(lastQuestion.optionsJson).map((option: string, index: number) => {
                 const isCorrect = index === lastQuestion.correctIndex;
@@ -109,10 +105,10 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
                     key={option}
                     className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
                       isCorrect
-                        ? "border-[rgba(155,202,141,0.38)] bg-[rgba(155,202,141,0.16)] text-[var(--foreground-strong)]"
+                        ? "border-[rgba(139,223,54,0.42)] bg-[rgba(139,223,54,0.18)] text-[var(--ink)]"
                         : isSelected
-                          ? "border-[rgba(242,143,130,0.42)] bg-[rgba(242,143,130,0.16)] text-[var(--foreground-strong)]"
-                          : "panel"
+                          ? "border-[rgba(255,107,99,0.42)] bg-[rgba(255,107,99,0.14)] text-[var(--ink)]"
+                          : "paper-card text-[var(--ink)]"
                     }`}
                   >
                     {option}
@@ -120,7 +116,7 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
                 );
               })}
             </div>
-            <p className="mt-4 text-sm text-[var(--muted)]">{lastQuestion.explanation}</p>
+            <p className="paper-muted mt-4 text-sm">{lastQuestion.explanation}</p>
             <div className="mt-5 flex flex-wrap gap-2">
               {(["LIKE", "DISLIKE"] as const).map((value) => (
                 <form key={value} action={saveQuestionFeedbackAction}>
@@ -148,7 +144,7 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
                 Next question
               </Link>
             ) : (
-              <div className="mt-5 text-sm font-semibold text-[var(--accent)]">Quiz complete.</div>
+              <div className="mt-5 text-sm font-semibold text-[var(--success)]">Quiz complete.</div>
             )}
           </div>
         </section>
@@ -159,21 +155,23 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
           <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
             Question {currentQuestion.position + 1}
           </div>
-          <h2 className="mt-3 text-2xl font-bold">{currentQuestion.prompt}</h2>
-          <form action={answerQuestionAction} className="mt-6 space-y-4">
-            <input type="hidden" name="attemptId" value={attempt.id} />
-            <input type="hidden" name="questionId" value={currentQuestion.id} />
-            {JSON.parse(currentQuestion.optionsJson).map((option: string, index: number) => (
-              <label
-                key={option}
-                className="flex items-center gap-3 rounded-2xl border border-[var(--border)] px-4 py-4"
-              >
-                <input type="radio" name="selectedIndex" value={index} required className="h-4 w-4" />
-                <span className="text-sm font-medium">{option}</span>
-              </label>
-            ))}
-            <SubmitButton pendingLabel="Checking answer...">Submit answer</SubmitButton>
-          </form>
+          <div className="paper-card mt-4 rounded-[2rem] px-6 py-8">
+            <h2 className="text-2xl font-bold text-[var(--ink)]">{currentQuestion.prompt}</h2>
+            <form action={answerQuestionAction} className="mt-6 space-y-4">
+              <input type="hidden" name="attemptId" value={attempt.id} />
+              <input type="hidden" name="questionId" value={currentQuestion.id} />
+              {JSON.parse(currentQuestion.optionsJson).map((option: string, index: number) => (
+                <label
+                  key={option}
+                  className="paper-card flex items-center gap-3 rounded-2xl px-4 py-4"
+                >
+                  <input type="radio" name="selectedIndex" value={index} required className="h-4 w-4" />
+                  <span className="text-sm font-medium text-[var(--ink)]">{option}</span>
+                </label>
+              ))}
+              <SubmitButton pendingLabel="Checking answer...">Submit answer</SubmitButton>
+            </form>
+          </div>
         </section>
       ) : null}
 
@@ -189,12 +187,12 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
               const feedback = question.feedback[0]?.value;
 
               return (
-                <div key={question.id} className="rounded-3xl border border-[var(--border)] px-5 py-4">
-                  <div className="font-semibold">{question.prompt}</div>
+                <div key={question.id} className="paper-card rounded-[1.75rem] px-5 py-4">
+                  <div className="font-semibold text-[var(--ink)]">{question.prompt}</div>
                   <div className={`mt-2 text-sm font-semibold ${response?.isCorrect ? "status-positive" : "status-negative"}`}>
                     {response?.isCorrect ? "Correct" : "Incorrect"}
                   </div>
-                  <p className="mt-2 text-sm text-[var(--muted)]">{question.explanation}</p>
+                  <p className="paper-muted mt-2 text-sm">{question.explanation}</p>
                   <div className="mt-4 flex flex-wrap gap-2">
                     {(["LIKE", "DISLIKE"] as const).map((value) => (
                       <form key={value} action={saveQuestionFeedbackAction}>

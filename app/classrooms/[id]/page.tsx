@@ -86,7 +86,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
       <section className="card px-6 py-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="pill bg-[var(--accent-soft)] text-[var(--accent)]">
+            <div className="pill accent-chip">
               {membership.role === "MANAGER" ? "Manager view" : "Member view"}
             </div>
             <h1 className="display-title mt-4 text-4xl font-bold">{classroom.name}</h1>
@@ -94,16 +94,16 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
               {classroom.description || "No classroom description yet."}
             </p>
           </div>
-          <div className="rounded-3xl bg-[var(--surface-alt)] px-5 py-4">
+          <div className="paper-card rounded-[1.75rem] px-5 py-4">
             <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
               Invite link
             </div>
-            <div className="mt-2 break-all text-sm font-semibold">
+            <div className="mt-2 break-all text-sm font-semibold text-[var(--ink)]">
               /join/{classroom.invite?.code}
             </div>
             <Link
               href={`/leaderboards/classroom/${classroom.id}`}
-              className="mt-4 inline-flex text-sm font-semibold text-[var(--accent)]"
+              className="mt-4 inline-flex text-sm font-semibold text-[var(--highlight)]"
             >
               Open classroom leaderboard
             </Link>
@@ -121,7 +121,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                   Upload `pdf`, `txt`, or `md`. Duplicate content hashes are blocked and do not earn points.
                 </p>
               </div>
-              <div className="rounded-full bg-[var(--surface-alt)] px-4 py-2 text-sm font-semibold">
+              <div className="pill accent-chip">
                 {classroom.documents.length} files
               </div>
             </div>
@@ -139,12 +139,12 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                 classroom.documents.map((document) => (
                   <div
                     key={document.id}
-                    className="panel rounded-3xl px-5 py-4"
+                    className="paper-card rounded-[1.75rem] px-5 py-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <div className="font-semibold">{document.originalName}</div>
-                        <div className="mt-1 text-sm text-[var(--muted)]">
+                        <div className="font-semibold text-[var(--ink)]">{document.originalName}</div>
+                        <div className="paper-muted mt-1 text-sm">
                           {document.extension.toUpperCase()} • {formatDate(document.createdAt)}
                         </div>
                       </div>
@@ -175,7 +175,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
             </div>
             <form action={generateQuizAction} className="mt-5 space-y-4">
               <input type="hidden" name="classroomId" value={classroom.id} />
-              <label className="flex items-center gap-3 rounded-2xl bg-[var(--surface-alt)] px-4 py-3">
+              <label className="panel-soft flex items-center gap-3 rounded-2xl px-4 py-3">
                 <input type="checkbox" name="selectAll" value="all" className="h-4 w-4" />
                 <span className="text-sm font-semibold">Select all classroom documents</span>
               </label>
@@ -183,7 +183,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                 {classroom.documents.map((document) => (
                   <label
                     key={document.id}
-                    className="flex items-center gap-3 rounded-2xl border border-[var(--border)] px-4 py-3"
+                    className="paper-card flex items-center gap-3 rounded-2xl px-4 py-3"
                   >
                     <input
                       type="checkbox"
@@ -213,7 +213,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                 </div>
               ) : (
                 classroom.messages.map((message) => (
-                  <div key={message.id} className="rounded-3xl border border-[var(--border)] px-5 py-4">
+                  <div key={message.id} className="panel-soft rounded-3xl px-5 py-4">
                     <div className="flex flex-wrap items-start justify-between gap-3">
                       <div>
                         <div className="font-semibold">
@@ -247,13 +247,13 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                 <h2 className="section-title">Members</h2>
                 <p className="mt-1 text-sm text-[var(--muted)]">Manager powers are centralized here.</p>
               </div>
-              <div className="rounded-full bg-[var(--surface-alt)] px-4 py-2 text-sm font-semibold">
+              <div className="pill accent-chip">
                 {classroom.members.length} students
               </div>
             </div>
             <div className="mt-5 space-y-3">
               {sortedMembers.map((member) => (
-                <div key={member.id} className="rounded-3xl border border-[var(--border)] px-5 py-4">
+                <div key={member.id} className="panel-soft rounded-3xl px-5 py-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
                       <div className="font-semibold">{member.user.displayName}</div>
@@ -262,7 +262,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                         <span
                           className={`pill ${
                             member.role === "MANAGER"
-                              ? "bg-[var(--accent-soft)] text-[var(--accent)]"
+                              ? "accent-chip"
                               : "bg-[var(--surface-alt)] text-[var(--muted)]"
                           }`}
                         >
@@ -299,12 +299,12 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
             <h2 className="section-title">Leaderboard preview</h2>
             <div className="mt-5 space-y-3">
               {sortedMembers.slice(0, 5).map((member, index) => (
-                <div key={member.id} className="flex items-center justify-between rounded-2xl bg-[var(--surface-alt)] px-4 py-3">
+                <div key={member.id} className="paper-card flex items-center justify-between rounded-2xl px-4 py-3">
                   <div>
-                    <div className="text-sm font-semibold">#{index + 1}</div>
-                    <div className="font-semibold">{member.user.displayName}</div>
+                    <div className="paper-muted text-sm font-semibold">#{index + 1}</div>
+                    <div className="font-semibold text-[var(--ink)]">{member.user.displayName}</div>
                   </div>
-                  <div className="font-semibold">{member.classroomPoints} pts</div>
+                  <div className="font-semibold text-[var(--ink)]">{member.classroomPoints} pts</div>
                 </div>
               ))}
             </div>

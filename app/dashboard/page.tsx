@@ -47,23 +47,23 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
         </div>
       ) : null}
       <section className="grid gap-4 md:grid-cols-3">
-        <article className="card px-5 py-5">
-          <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+        <article className="paper-card rounded-[1.75rem] px-5 py-5">
+          <div className="paper-muted text-sm font-semibold uppercase tracking-[0.16em]">
             Total points
           </div>
-          <div className="mt-2 text-3xl font-bold">{user.totalPoints.toLocaleString()}</div>
+          <div className="mt-2 text-3xl font-bold text-[var(--ink)]">{user.totalPoints.toLocaleString()}</div>
         </article>
-        <article className="card px-5 py-5">
-          <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+        <article className="paper-card rounded-[1.75rem] px-5 py-5">
+          <div className="paper-muted text-sm font-semibold uppercase tracking-[0.16em]">
             Classrooms
           </div>
-          <div className="mt-2 text-3xl font-bold">{memberships.length}</div>
+          <div className="mt-2 text-3xl font-bold text-[var(--ink)]">{memberships.length}</div>
         </article>
-        <article className="card px-5 py-5">
-          <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+        <article className="paper-card rounded-[1.75rem] px-5 py-5">
+          <div className="paper-muted text-sm font-semibold uppercase tracking-[0.16em]">
             Friends
           </div>
-          <div className="mt-2 text-3xl font-bold">{friendships.length}</div>
+          <div className="mt-2 text-3xl font-bold text-[var(--ink)]">{friendships.length}</div>
         </article>
       </section>
 
@@ -90,20 +90,20 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <Link
                   key={membership.id}
                   href={`/classrooms/${membership.classroomId}`}
-                  className="panel block rounded-3xl px-5 py-4 transition hover:border-[var(--accent)]"
+                  className="paper-card block rounded-[1.75rem] px-5 py-4 transition hover:-translate-y-0.5 hover:border-[var(--accent)]"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                      <div className="font-semibold">{membership.classroom.name}</div>
-                      <div className="mt-1 text-sm text-[var(--muted)]">
+                      <div className="font-semibold text-[var(--ink)]">{membership.classroom.name}</div>
+                      <div className="paper-muted mt-1 text-sm">
                         {membership.classroom.description || "No description yet."}
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="pill bg-[var(--accent-soft)] text-[var(--accent)]">
+                      <div className="pill accent-chip">
                         {membership.role === "MANAGER" ? "Manager" : "Member"}
                       </div>
-                      <div className="mt-2 text-sm font-semibold">{membership.classroomPoints} pts</div>
+                      <div className="mt-2 text-sm font-semibold text-[var(--ink)]">{membership.classroomPoints} pts</div>
                     </div>
                   </div>
                 </Link>
@@ -134,11 +134,11 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <p className="text-sm text-[var(--muted)]">No point events yet.</p>
               ) : (
                 recentPoints.map((item) => (
-                  <div key={item.id} className="rounded-2xl bg-[var(--surface-alt)] px-4 py-3">
-                    <div className="font-semibold">
+                  <div key={item.id} className="paper-card rounded-2xl px-4 py-3">
+                    <div className="font-semibold text-[var(--ink)]">
                       +{item.amount} for {item.reason.replaceAll("_", " ").toLowerCase()}
                     </div>
-                    <div className="mt-1 text-xs text-[var(--muted)]">{formatDate(item.createdAt)}</div>
+                    <div className="paper-muted mt-1 text-xs">{formatDate(item.createdAt)}</div>
                   </div>
                 ))
               )}

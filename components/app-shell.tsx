@@ -36,14 +36,14 @@ export function AppShell({ children, user }: AppShellProps) {
             <Link href={user ? "/dashboard" : "/"} className="display-title text-2xl font-bold">
               Study League
             </Link>
-            <span className="pill bg-[var(--accent-soft)] text-[var(--accent)]">MVP</span>
+            <span className="pill accent-chip">MVP</span>
           </div>
           <nav className="flex flex-wrap items-center gap-2">
             {nav.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:bg-[var(--surface-alt)] hover:text-[var(--foreground-strong)]"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:bg-[var(--surface-soft)] hover:text-[var(--foreground-strong)]"
               >
                 {item.label}
               </Link>
@@ -52,14 +52,14 @@ export function AppShell({ children, user }: AppShellProps) {
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
             {user ? (
               <>
-                <div className="rounded-2xl bg-[var(--surface-alt)] px-4 py-2">
+                <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-alt)] px-4 py-2 shadow-[0_12px_24px_rgba(0,0,0,0.16)]">
                   <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--muted)]">
                     Logged in
                   </div>
                   <div className="font-semibold">
                     {user.displayName} <span className="muted">@{user.username}</span>
                   </div>
-                  <div className="text-sm font-semibold text-[var(--accent)]">
+                  <div className="text-sm font-semibold text-[var(--accent-strong)]">
                     {user.totalPoints.toLocaleString()} pts
                   </div>
                 </div>
@@ -70,7 +70,7 @@ export function AppShell({ children, user }: AppShellProps) {
                 </form>
               </>
             ) : (
-              <div className="rounded-2xl bg-[var(--surface-alt)] px-4 py-3 text-sm font-medium text-[var(--muted)]">
+              <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface-alt)] px-4 py-3 text-sm font-medium text-[var(--muted)]">
                 Build classrooms, quizzes, leaderboards, and social study loops.
               </div>
             )}

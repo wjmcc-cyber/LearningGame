@@ -12,7 +12,7 @@ export default async function HomePage() {
   return (
     <div className="grid gap-6 lg:grid-cols-[1.35fr_0.9fr]">
       <section className="card overflow-hidden px-6 py-10 sm:px-10">
-        <div className="inline-flex rounded-full bg-[var(--accent-soft)] px-4 py-2 text-sm font-semibold text-[var(--accent)]">
+        <div className="accent-chip inline-flex rounded-full px-4 py-2 text-sm font-semibold">
           Student-run study game MVP
         </div>
         <h1 className="display-title mt-6 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
@@ -36,11 +36,11 @@ export default async function HomePage() {
             { label: "Correct quiz answers", value: "+100 pts" },
             { label: "Invite flow", value: "Permanent links" },
           ].map((item) => (
-            <div key={item.label} className="rounded-3xl bg-[var(--surface-alt)] p-5">
-              <div className="text-sm font-semibold uppercase tracking-[0.16em] text-[var(--muted)]">
+            <div key={item.label} className="paper-card rounded-3xl p-5">
+              <div className="paper-muted text-sm font-semibold uppercase tracking-[0.16em]">
                 {item.label}
               </div>
-              <div className="mt-2 text-2xl font-bold">{item.value}</div>
+              <div className="mt-2 text-2xl font-bold text-[var(--ink)]">{item.value}</div>
             </div>
           ))}
         </div>
@@ -60,9 +60,9 @@ export default async function HomePage() {
             body: "Students can add friends, compare total points, and send direct messages without needing realtime infrastructure.",
           },
         ].map((feature) => (
-          <article key={feature.title} className="card px-6 py-5">
-            <h2 className="section-title">{feature.title}</h2>
-            <p className="mt-3 text-sm leading-7 text-[var(--muted)]">{feature.body}</p>
+          <article key={feature.title} className="paper-card rounded-[1.75rem] px-6 py-5">
+            <h2 className="section-title text-[var(--ink)]">{feature.title}</h2>
+            <p className="paper-muted mt-3 text-sm leading-7">{feature.body}</p>
           </article>
         ))}
       </section>
