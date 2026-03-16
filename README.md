@@ -163,7 +163,7 @@ The Prisma schema includes all requested MVP entities:
 - There is no classroom deletion flow yet.
 - Friend requests are immediate accepts in V1 to keep the social loop thin.
 - The fallback quiz generator is deterministic and demoable, but much simpler than the OpenAI path.
-- PDF extraction is best-effort; if a PDF has poor extractable text, upload `txt` or `md` instead.
+- PDF extraction is best-effort; if the runtime worker setup or extractable text fails, upload `txt` or `md` instead.
 - `npm run db:push` bootstraps the SQLite schema directly for this MVP rather than using full Prisma migrations.
 - No realtime transport is included; chat and messages refresh on navigation/form submits.
 - Minimal automated test coverage was not added in this pass.

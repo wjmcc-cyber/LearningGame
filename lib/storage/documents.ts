@@ -1,5 +1,6 @@
 import { access, mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
+import { pathToFileURL } from "url";
 import { PDFParse } from "pdf-parse";
 import { normalizeWhitespace, sha256Hex } from "@/lib/utils";
 
@@ -9,6 +10,9 @@ const STORAGE_DIR = process.env.STORAGE_ROOT
   : process.env.RAILWAY_VOLUME_MOUNT_PATH
     ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage", "documents")
     : path.join(process.cwd(), "storage", "documents");
+const PDF_WORKER_PATH = pathToFileURL(
+  path.join(process.cwd(), "node_modules", "pdf-parse", "dist", "pdf-parse", "cjs", "pdf.worker.mjs"),
+).href;
 
 function getExtension(filename: string) {
   return filename.split(".").pop()?.toLowerCase() ?? "";
@@ -20,10 +24,17 @@ async function extractText(buffer: Buffer, extension: string) {
   }
 
   if (extension === "pdf") {
+    PDFParse.setWorker(PDF_WORKER_PATH);
     const parser = new PDFParse({ data: buffer });
-    const parsed = await parser.getText();
-    await parser.destroy();
-    return normalizeWhitespace(parsed.text);
+
+    try {
+      const parsed = await parser.getText();
+      return normalizeWhitespace(parsed.text);
+    } catch {
+      throw new Error("PDF uploads are not stable in this environment yet. Use TXT or MD for now.");
+    } finally {
+      await parser.destroy();
+    }
   }
 
   throw new Error("Unsupported document type.");
