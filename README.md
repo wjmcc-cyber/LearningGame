@@ -39,6 +39,7 @@ SESSION_COOKIE_NAME="study_league_session"
 SESSION_TTL_DAYS="30"
 OPENAI_API_KEY=""
 OPENAI_MODEL="gpt-5-mini"
+STORAGE_ROOT=""
 ```
 
 `OPENAI_API_KEY` is optional. If it is blank, quiz generation falls back automatically to a deterministic local generator. Prisma is configured to load `.env.local` first and `.env` second.
@@ -62,6 +63,48 @@ Production verification:
 npm.cmd run lint
 npm.cmd run build
 ```
+
+## Deploy on Railway
+
+Railway is the best first hosted option for this repo because the app still uses SQLite and local file storage, and Railway supports both GitHub deploys and persistent volumes with a public URL. Official docs:
+
+- Volumes: https://docs.railway.com/reference/volumes
+- Deployments from GitHub: https://docs.railway.com/guides/github
+- Public networking and generated domains: https://docs.railway.com/guides/public-networking
+
+### One-time Railway setup
+
+1. Push this repo to GitHub.
+2. In Railway, create a new project from the GitHub repo and select the branch you want to deploy.
+3. Add a volume to the app service and mount it at `/data`.
+4. In the service variables, set:
+
+```env
+DATABASE_URL="file:/data/dev.db"
+STORAGE_ROOT="/data/storage"
+SESSION_COOKIE_NAME="study_league_session"
+SESSION_TTL_DAYS="30"
+OPENAI_API_KEY=""
+OPENAI_MODEL="gpt-5-mini"
+```
+
+5. In Railway networking, generate a public domain for the service.
+6. Redeploy once after the volume and variables are set.
+
+This repo includes [`railway.toml`](./railway.toml), a production start script, and a `/health` route so Railway can build, boot, and health-check the app without extra platform code.
+
+### Railway behavior in this repo
+
+- `npm run start` automatically ensures the SQLite schema exists before starting Next.js.
+- Uploaded documents are stored under the mounted persistent volume instead of ephemeral container storage.
+- If `OPENAI_API_KEY` is not set, quiz generation still works through the fallback generator.
+- Users can sign up directly on the deployed app, so seeding is optional in production.
+
+### First production launch
+
+If you want demo content on the hosted app, seed locally first and deploy the resulting code only for structure, not for data. Railway volumes are runtime state, so the hosted database starts empty unless you import or seed it in the deployed environment.
+
+For a clean public launch, deploy first and create the first account through `/signup`.
 
 ## Demo credentials
 
@@ -124,6 +167,7 @@ The Prisma schema includes all requested MVP entities:
 - `npm run db:push` bootstraps the SQLite schema directly for this MVP rather than using full Prisma migrations.
 - No realtime transport is included; chat and messages refresh on navigation/form submits.
 - Minimal automated test coverage was not added in this pass.
+- Railway is the easiest production path for the current architecture, but Railway volumes support only one volume per service and cannot be used with replicas, so true higher-scale production should move to Postgres and object storage instead of SQLite plus local disk.
 
 ## Suggested demo flow
 

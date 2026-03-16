@@ -4,7 +4,11 @@ import { PDFParse } from "pdf-parse";
 import { normalizeWhitespace, sha256Hex } from "@/lib/utils";
 
 const SUPPORTED_EXTENSIONS = new Set(["txt", "md", "pdf"]);
-const STORAGE_DIR = path.join(process.cwd(), "storage", "documents");
+const STORAGE_DIR = process.env.STORAGE_ROOT
+  ? path.join(process.env.STORAGE_ROOT, "documents")
+  : process.env.RAILWAY_VOLUME_MOUNT_PATH
+    ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage", "documents")
+    : path.join(process.cwd(), "storage", "documents");
 
 function getExtension(filename: string) {
   return filename.split(".").pop()?.toLowerCase() ?? "";

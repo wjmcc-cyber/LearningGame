@@ -6,12 +6,21 @@ import { config as loadEnv } from "dotenv";
 loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
 loadEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
 
+if (!process.env.DATABASE_URL && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  process.env.DATABASE_URL = `file:${path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "dev.db")}`;
+}
+
 function resolveDatabasePath(databaseUrl) {
   if (!databaseUrl?.startsWith("file:")) {
     throw new Error("Only SQLite file URLs are supported for this MVP.");
   }
 
   const relativePath = databaseUrl.replace("file:", "");
+
+  if (path.isAbsolute(relativePath)) {
+    return relativePath;
+  }
+
   return path.resolve(process.cwd(), "prisma", relativePath);
 }
 

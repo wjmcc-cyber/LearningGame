@@ -8,8 +8,18 @@ import { PrismaClient } from "@prisma/client";
 loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
 loadEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
 
+if (!process.env.DATABASE_URL && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  process.env.DATABASE_URL = `file:${path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "dev.db")}`;
+}
+
+if (!process.env.STORAGE_ROOT && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+  process.env.STORAGE_ROOT = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage");
+}
+
 const prisma = new PrismaClient();
-const storageDir = path.join(process.cwd(), "storage", "documents");
+const storageDir = process.env.STORAGE_ROOT
+  ? path.join(process.env.STORAGE_ROOT, "documents")
+  : path.join(process.cwd(), "storage", "documents");
 
 function hashContent(value) {
   return createHash("sha256").update(value).digest("hex");
