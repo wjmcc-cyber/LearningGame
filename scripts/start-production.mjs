@@ -34,8 +34,9 @@ function runNodeScript(scriptPath) {
 await runNodeScript(path.join(process.cwd(), "scripts", "db-push.mjs"));
 
 const port = process.env.PORT || "3000";
+const hostname = process.env.HOSTNAME || "0.0.0.0";
 const nextCli = path.join(process.cwd(), "node_modules", "next", "dist", "bin", "next");
-const nextProcess = spawn(process.execPath, [nextCli, "start", "-p", port], {
+const nextProcess = spawn(process.execPath, [nextCli, "start", "-H", hostname, "-p", port], {
   stdio: "inherit",
   env: process.env,
 });

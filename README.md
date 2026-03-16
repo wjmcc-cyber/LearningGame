@@ -40,6 +40,7 @@ SESSION_TTL_DAYS="30"
 OPENAI_API_KEY=""
 OPENAI_MODEL="gpt-5-mini"
 STORAGE_ROOT=""
+SITE_URL="http://localhost:3000"
 ```
 
 `OPENAI_API_KEY` is optional. If it is blank, quiz generation falls back automatically to a deterministic local generator. Prisma is configured to load `.env.local` first and `.env` second.
@@ -86,6 +87,7 @@ SESSION_COOKIE_NAME="study_league_session"
 SESSION_TTL_DAYS="30"
 OPENAI_API_KEY=""
 OPENAI_MODEL="gpt-5-mini"
+SITE_URL="https://your-app.up.railway.app"
 ```
 
 5. In Railway networking, generate a public domain for the service.
@@ -96,9 +98,11 @@ This repo includes [`railway.toml`](./railway.toml), a production start script, 
 ### Railway behavior in this repo
 
 - `npm run start` automatically ensures the SQLite schema exists before starting Next.js.
+- The production server binds to `0.0.0.0` so the app is reachable through Railway networking.
 - Uploaded documents are stored under the mounted persistent volume instead of ephemeral container storage.
 - If `OPENAI_API_KEY` is not set, quiz generation still works through the fallback generator.
 - Users can sign up directly on the deployed app, so seeding is optional in production.
+- `SITE_URL` drives canonical metadata, `robots.txt`, and `sitemap.xml` for the public site.
 
 ### First production launch
 
