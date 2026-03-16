@@ -42,7 +42,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <div className="space-y-6">
       {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="alert-error rounded-2xl px-4 py-3 text-sm">
           {error}
         </div>
       ) : null}
@@ -90,7 +90,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
                 <Link
                   key={membership.id}
                   href={`/classrooms/${membership.classroomId}`}
-                  className="block rounded-3xl border border-[var(--border)] bg-white px-5 py-4 transition hover:border-[var(--accent)]"
+                  className="panel block rounded-3xl px-5 py-4 transition hover:border-[var(--accent)]"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>

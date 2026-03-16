@@ -74,12 +74,12 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
   return (
     <div className="space-y-6">
       {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="alert-error rounded-2xl px-4 py-3 text-sm">
           {error}
         </div>
       ) : null}
       {success ? (
-        <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <div className="alert-success rounded-2xl px-4 py-3 text-sm">
           {success}
         </div>
       ) : null}
@@ -139,7 +139,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                 classroom.documents.map((document) => (
                   <div
                     key={document.id}
-                    className="rounded-3xl border border-[var(--border)] bg-white px-5 py-4"
+                    className="panel rounded-3xl px-5 py-4"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
@@ -268,7 +268,7 @@ export default async function ClassroomDetailPage({ params, searchParams }: Clas
                         >
                           {member.role === "MANAGER" ? "Manager" : "Member"}
                         </span>
-                        <span className="pill bg-amber-50 text-amber-700">{member.classroomPoints} pts</span>
+                        <span className="cream-panel pill">{member.classroomPoints} pts</span>
                       </div>
                     </div>
                     {membership.role === "MANAGER" && member.userId !== user.id ? (

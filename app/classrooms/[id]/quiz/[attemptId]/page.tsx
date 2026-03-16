@@ -67,7 +67,7 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {error ? (
-        <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="alert-error rounded-2xl px-4 py-3 text-sm">
           {error}
         </div>
       ) : null}
@@ -92,7 +92,7 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
         <section className="card px-6 py-6">
           <div
             className={`rounded-3xl px-5 py-5 ${
-              lastResponse.isCorrect ? "bg-emerald-50" : "bg-red-50"
+              lastResponse.isCorrect ? "alert-success" : "alert-error"
             }`}
           >
             <div className={`text-sm font-semibold ${lastResponse.isCorrect ? "status-positive" : "status-negative"}`}>
@@ -109,10 +109,10 @@ export default async function QuizAttemptPage({ params, searchParams }: QuizAtte
                     key={option}
                     className={`rounded-2xl border px-4 py-3 text-sm font-medium ${
                       isCorrect
-                        ? "border-emerald-200 bg-emerald-100 text-emerald-900"
+                        ? "border-[rgba(155,202,141,0.38)] bg-[rgba(155,202,141,0.16)] text-[var(--foreground-strong)]"
                         : isSelected
-                          ? "border-red-200 bg-red-100 text-red-900"
-                          : "border-[var(--border)] bg-white"
+                          ? "border-[rgba(242,143,130,0.42)] bg-[rgba(242,143,130,0.16)] text-[var(--foreground-strong)]"
+                          : "panel"
                     }`}
                   >
                     {option}

@@ -30,7 +30,7 @@ export default async function SignupPage({ searchParams }: SignupPageProps) {
           Use email, username, and password only. Social auth is intentionally out of scope for V1.
         </p>
         {error ? (
-          <div className="mt-5 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="alert-error mt-5 rounded-2xl px-4 py-3 text-sm">
             {error}
           </div>
         ) : null}

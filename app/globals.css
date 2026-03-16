@@ -3,17 +3,23 @@
 :root {
   --font-manrope: "Aptos", "Segoe UI", sans-serif;
   --font-space-grotesk: "Bahnschrift SemiCondensed", "Trebuchet MS", sans-serif;
-  --background: #f3f7f6;
-  --surface: #ffffff;
-  --surface-alt: #e2ece8;
-  --foreground: #14211d;
-  --muted: #5a6d66;
-  --border: #c9d7d2;
-  --accent: #0f766e;
-  --accent-soft: #d8f1ee;
-  --highlight: #f59e0b;
-  --danger: #dc2626;
-  --success: #15803d;
+  --background: #0f0c09;
+  --surface: #1c1712;
+  --surface-raised: #27211a;
+  --surface-alt: #32281f;
+  --surface-soft: #f2e4c6;
+  --foreground: #f6ead5;
+  --foreground-strong: #fff7ea;
+  --muted: #baa788;
+  --border: #6d5a41;
+  --accent: #d6b26d;
+  --accent-strong: #f1d7a1;
+  --accent-soft: rgba(214, 178, 109, 0.14);
+  --highlight: #e8bf74;
+  --danger: #f28f82;
+  --danger-soft: rgba(242, 143, 130, 0.12);
+  --success: #9bca8d;
+  --success-soft: rgba(155, 202, 141, 0.14);
 }
 
 @theme inline {
@@ -28,6 +34,7 @@ body {
   color: var(--foreground);
   font-family: var(--font-manrope), sans-serif;
   min-height: 100vh;
+  text-rendering: optimizeLegibility;
 }
 
 a {
@@ -41,37 +48,88 @@ select {
   width: 100%;
   border-radius: 1rem;
   border: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.94);
+  background:
+    linear-gradient(180deg, rgba(46, 38, 29, 0.98), rgba(31, 25, 20, 0.96));
   padding: 0.8rem 0.95rem;
   font-size: 0.95rem;
   color: var(--foreground);
   outline: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 214, 0.06),
+    0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
 input:focus,
 textarea:focus,
 select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 214, 0.08),
+    0 0 0 3px rgba(214, 178, 109, 0.16),
+    0 14px 28px rgba(0, 0, 0, 0.25);
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(246, 234, 213, 0.48);
 }
 
 button {
   cursor: pointer;
+  transition:
+    transform 140ms ease,
+    box-shadow 140ms ease,
+    border-color 140ms ease,
+    opacity 140ms ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
 }
 
 .app-background {
   background:
-    radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 32%),
-    radial-gradient(circle at top right, rgba(245, 158, 11, 0.12), transparent 28%),
-    linear-gradient(180deg, #f8fbfa 0%, #eff4f2 60%, #edf2f0 100%);
+    radial-gradient(circle at top left, rgba(214, 178, 109, 0.16), transparent 24%),
+    radial-gradient(circle at top right, rgba(255, 243, 214, 0.06), transparent 20%),
+    radial-gradient(circle at bottom center, rgba(120, 87, 45, 0.22), transparent 24%),
+    linear-gradient(180deg, #16110d 0%, #0e0b09 60%, #0a0806 100%);
+  position: relative;
+}
+
+.app-background::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01)),
+    radial-gradient(circle at 20% 20%, rgba(255, 231, 185, 0.05), transparent 18%);
+  mix-blend-mode: screen;
+  opacity: 0.55;
 }
 
 .card {
-  border: 1px solid rgba(201, 215, 210, 0.9);
-  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(109, 90, 65, 0.9);
+  background:
+    linear-gradient(180deg, rgba(37, 30, 24, 0.98), rgba(24, 19, 15, 0.98));
   backdrop-filter: blur(18px);
   border-radius: 1.5rem;
-  box-shadow: 0 18px 60px rgba(20, 33, 29, 0.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 236, 204, 0.08),
+    0 24px 70px rgba(0, 0, 0, 0.42);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 233, 196, 0.05),
+    inset 0 -20px 30px rgba(0, 0, 0, 0.12);
 }
 
 .pill {
@@ -82,27 +140,40 @@ button {
   padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
   font-weight: 700;
+  border: 1px solid rgba(214, 178, 109, 0.26);
+  box-shadow: inset 0 1px 0 rgba(255, 241, 220, 0.08);
 }
 
 .button-primary {
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent), #115e59);
-  color: white;
+  border: 1px solid rgba(241, 215, 161, 0.5);
+  background:
+    linear-gradient(180deg, #f4e5c5, #d6b06f 68%, #b98e4c);
+  color: #241b11;
   padding: 0.8rem 1.1rem;
   font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 251, 240, 0.72),
+    0 12px 24px rgba(0, 0, 0, 0.28);
 }
 
 .button-secondary {
   border-radius: 999px;
-  border: 1px solid rgba(20, 33, 29, 0.12);
-  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(214, 178, 109, 0.34);
+  background:
+    linear-gradient(180deg, rgba(46, 38, 30, 0.96), rgba(28, 23, 18, 0.96));
+  color: var(--foreground);
   padding: 0.8rem 1.1rem;
   font-weight: 700;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 214, 0.06),
+    0 12px 24px rgba(0, 0, 0, 0.18);
 }
 
 .button-danger {
   border-radius: 999px;
-  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(242, 143, 130, 0.32);
+  background: var(--danger-soft);
   color: var(--danger);
   padding: 0.8rem 1.1rem;
   font-weight: 700;
@@ -130,6 +201,43 @@ button {
 
 .status-negative {
   color: var(--danger);
+}
+
+.panel {
+  border: 1px solid rgba(109, 90, 65, 0.9);
+  background:
+    linear-gradient(180deg, rgba(46, 38, 30, 0.96), rgba(26, 21, 17, 0.96));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 214, 0.05),
+    0 16px 32px rgba(0, 0, 0, 0.18);
+}
+
+.panel-soft {
+  border: 1px solid rgba(214, 178, 109, 0.18);
+  background:
+    linear-gradient(180deg, rgba(57, 46, 35, 0.92), rgba(38, 30, 24, 0.92));
+}
+
+.cream-panel {
+  border: 1px solid rgba(241, 215, 161, 0.38);
+  background:
+    linear-gradient(180deg, rgba(244, 229, 197, 0.98), rgba(223, 198, 147, 0.96));
+  color: #2e2316;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 248, 0.75),
+    0 14px 28px rgba(0, 0, 0, 0.18);
+}
+
+.alert-error {
+  border: 1px solid rgba(242, 143, 130, 0.34);
+  background: linear-gradient(180deg, rgba(95, 36, 28, 0.26), rgba(50, 23, 19, 0.22));
+  color: #ffd8d1;
+}
+
+.alert-success {
+  border: 1px solid rgba(155, 202, 141, 0.28);
+  background: linear-gradient(180deg, rgba(49, 73, 38, 0.26), rgba(28, 43, 25, 0.22));
+  color: #ddf1d6;
 }
 
 .grid-auto-fit {

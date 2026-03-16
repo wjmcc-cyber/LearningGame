@@ -43,7 +43,7 @@ export function AppShell({ children, user }: AppShellProps) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:bg-white hover:text-[var(--foreground)]"
+                className="rounded-full px-4 py-2 text-sm font-semibold text-[var(--muted)] transition hover:bg-[var(--surface-alt)] hover:text-[var(--foreground-strong)]"
               >
                 {item.label}
               </Link>
