@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 type ClassroomLeaderboardPageProps = {
   params: Promise<{ id: string }>;
 };
 
 export default async function ClassroomLeaderboardPage({ params }: ClassroomLeaderboardPageProps) {
+  const prisma = await getDb();
   await requireCurrentUser();
   const { id } = await params;
   const classroom = await prisma.classroom.findUniqueOrThrow({

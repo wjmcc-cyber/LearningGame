@@ -2,11 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { buildPairKey } from "@/lib/utils";
 
 export async function addFriendAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const targetUserId = String(formData.get("targetUserId") || "");
 
@@ -32,6 +33,7 @@ export async function addFriendAction(formData: FormData) {
 }
 
 export async function sendDirectMessageAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const content = String(formData.get("content") || "").trim();
   const recipientId = String(formData.get("recipientId") || "");

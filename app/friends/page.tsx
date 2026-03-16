@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { addFriendAction } from "@/lib/actions/friends";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { SubmitButton } from "@/components/submit-button";
 
 type FriendsPageProps = {
@@ -13,6 +13,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function FriendsPage({ searchParams }: FriendsPageProps) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const params = await searchParams;
   const query = (getParam(params.q) || "").trim();

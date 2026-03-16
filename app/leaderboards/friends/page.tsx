@@ -1,7 +1,8 @@
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 export default async function FriendLeaderboardPage() {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const friendships = await prisma.friendship.findMany({
     where: {

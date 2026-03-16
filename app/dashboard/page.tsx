@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { formatDate } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const params = await searchParams;
   const error = getParam(params.error);

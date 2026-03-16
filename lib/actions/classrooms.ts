@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { requireClassroomManager, requireClassroomMember } from "@/lib/permissions/classroom";
 
@@ -24,6 +24,7 @@ function makeInviteCode() {
 }
 
 export async function createClassroomAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const parsed = classroomSchema.safeParse({
     name: formData.get("name"),
@@ -66,6 +67,7 @@ export async function createClassroomAction(formData: FormData) {
 }
 
 export async function joinClassroomAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const inviteCode = String(formData.get("inviteCode") || "");
 
@@ -98,6 +100,7 @@ export async function joinClassroomAction(formData: FormData) {
 }
 
 export async function promoteManagerAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const targetUserId = String(formData.get("targetUserId") || "");
@@ -155,6 +158,7 @@ export async function promoteManagerAction(formData: FormData) {
 }
 
 export async function removeMemberAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const targetUserId = String(formData.get("targetUserId") || "");
@@ -179,6 +183,7 @@ export async function removeMemberAction(formData: FormData) {
 }
 
 export async function postClassroomMessageAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const parsed = messageSchema.safeParse({
     classroomId: formData.get("classroomId"),
@@ -204,6 +209,7 @@ export async function postClassroomMessageAction(formData: FormData) {
 }
 
 export async function deleteClassroomMessageAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const messageId = String(formData.get("messageId") || "");

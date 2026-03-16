@@ -1,6 +1,6 @@
 import { sendDirectMessageAction } from "@/lib/actions/friends";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { SubmitButton } from "@/components/submit-button";
 
@@ -13,6 +13,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function MessagesPage({ searchParams }: MessagesPageProps) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const params = await searchParams;
   const threadId = getParam(params.thread);

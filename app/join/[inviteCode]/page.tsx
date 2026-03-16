@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { getCurrentUser } from "@/lib/auth/session";
 import { joinClassroomAction } from "@/lib/actions/classrooms";
 import { SubmitButton } from "@/components/submit-button";
@@ -9,6 +9,7 @@ type JoinPageProps = {
 };
 
 export default async function JoinClassroomPage({ params }: JoinPageProps) {
+  const prisma = await getDb();
   const user = await getCurrentUser();
   const { inviteCode } = await params;
 

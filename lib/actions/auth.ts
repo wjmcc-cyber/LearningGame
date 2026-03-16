@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { Prisma } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { hashPassword, verifyPassword } from "@/lib/auth/password";
 import { clearSession, createSession, requireCurrentUser } from "@/lib/auth/session";
 import { safeRedirectPath } from "@/lib/utils";
@@ -54,6 +54,7 @@ function getValidationMessage(error: z.ZodError) {
 }
 
 export async function signupAction(formData: FormData) {
+  const prisma = await getDb();
   const parsed = signupSchema.safeParse({
     email: getTextValue(formData.get("email")),
     username: getTextValue(formData.get("username")),
@@ -113,6 +114,7 @@ export async function signupAction(formData: FormData) {
 }
 
 export async function loginAction(formData: FormData) {
+  const prisma = await getDb();
   const parsed = loginSchema.safeParse({
     email: getTextValue(formData.get("email")),
     password: getTextValue(formData.get("password")),
@@ -156,6 +158,7 @@ export async function logoutAction() {
 }
 
 export async function updateProfileAction(formData: FormData) {
+  const prisma = await getDb();
   const currentUser = await requireCurrentUser();
   const parsed = profileSchema.safeParse({
     displayName: getTextValue(formData.get("displayName")),

@@ -3,13 +3,14 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { PointsReason } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { requireClassroomMember } from "@/lib/permissions/classroom";
 import { awardPoints } from "@/lib/points";
 import { generateQuizQuestions } from "@/lib/quiz/provider";
 
 export async function generateQuizAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const selectAll = String(formData.get("selectAll") || "") === "all";
@@ -73,6 +74,7 @@ export async function generateQuizAction(formData: FormData) {
 }
 
 export async function answerQuestionAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const attemptId = String(formData.get("attemptId") || "");
   const questionId = String(formData.get("questionId") || "");
@@ -162,6 +164,7 @@ export async function answerQuestionAction(formData: FormData) {
 }
 
 export async function saveQuestionFeedbackAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const questionId = String(formData.get("questionId") || "");
   const value = String(formData.get("value") || "");

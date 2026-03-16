@@ -1,6 +1,6 @@
 import { updateProfileAction } from "@/lib/actions/auth";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { SubmitButton } from "@/components/submit-button";
 
 type ProfilePageProps = {
@@ -12,6 +12,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function ProfilePage({ searchParams }: ProfilePageProps) {
+  const prisma = await getDb();
   const sessionUser = await requireCurrentUser();
   const user = await prisma.user.findUniqueOrThrow({
     where: { id: sessionUser.id },

@@ -1,6 +1,7 @@
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 
 export async function requireClassroomMember(classroomId: string, userId: string) {
+  const prisma = await getDb();
   const member = await prisma.classroomMember.findUnique({
     where: {
       classroomId_userId: {
@@ -36,6 +37,7 @@ export async function requireClassroomManager(classroomId: string, userId: strin
 }
 
 export async function getDocumentWithPermissions(documentId: string) {
+  const prisma = await getDb();
   return prisma.document.findUnique({
     where: { id: documentId },
     include: {

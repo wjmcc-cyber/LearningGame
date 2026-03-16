@@ -8,7 +8,7 @@ import {
 import { deleteDocumentAction, uploadDocumentAction } from "@/lib/actions/documents";
 import { generateQuizAction } from "@/lib/actions/quiz";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireClassroomMember } from "@/lib/permissions/classroom";
 import { formatDate } from "@/lib/utils";
 import { SubmitButton } from "@/components/submit-button";
@@ -23,6 +23,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function ClassroomDetailPage({ params, searchParams }: ClassroomPageProps) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const { id } = await params;
   const membership = await requireClassroomMember(id, user.id);

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { answerQuestionAction, saveQuestionFeedbackAction } from "@/lib/actions/quiz";
 import { requireCurrentUser } from "@/lib/auth/session";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { formatDate } from "@/lib/utils";
 import { SubmitButton } from "@/components/submit-button";
 
@@ -15,6 +15,7 @@ function getParam(value: string | string[] | undefined) {
 }
 
 export default async function QuizAttemptPage({ params, searchParams }: QuizAttemptPageProps) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const { id, attemptId } = await params;
   const paramsData = await searchParams;

@@ -23,16 +23,7 @@ function resolveLocalDatabaseUrl(databaseUrl: string) {
   return `file:${new URL(`file://${process.cwd().replace(/\\/g, "/")}/prisma/${relativePath}`).pathname}`;
 }
 
-async function createPrismaClient() {
-  const cloudflareEnv = await getCloudflareEnv();
-
-  if (cloudflareEnv?.DB) {
-    return new PrismaClient({
-      adapter: new PrismaD1(cloudflareEnv.DB),
-      log: prismaLog,
-    });
-  }
-
+async function createLocalPrismaClient() {
   const url = process.env.DATABASE_URL;
 
   if (url) {
@@ -52,8 +43,28 @@ async function createPrismaClient() {
   });
 }
 
-export const prisma = global.__studyLeaguePrisma ?? (await createPrismaClient());
+export async function getDb() {
+  const cloudflareEnv = await getCloudflareEnv();
 
-if (process.env.NODE_ENV !== "production") {
-  global.__studyLeaguePrisma = prisma;
+  if (cloudflareEnv?.DB) {
+    // D1 bindings are request-scoped in Cloudflare, so build the client lazily per request.
+    return new PrismaClient({
+      adapter: new PrismaD1(cloudflareEnv.DB),
+      log: prismaLog,
+    });
+  }
+
+  if (global.__studyLeaguePrisma) {
+    return global.__studyLeaguePrisma;
+  }
+
+  const client = await createLocalPrismaClient();
+
+  if (process.env.NODE_ENV !== "production") {
+    global.__studyLeaguePrisma = client;
+  }
+
+  return client;
 }
+
+export type DbClient = Awaited<ReturnType<typeof getDb>>;

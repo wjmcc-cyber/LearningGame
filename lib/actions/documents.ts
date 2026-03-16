@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { PointsReason } from "@prisma/client";
-import { prisma } from "@/lib/db";
+import { getDb } from "@/lib/db";
 import { requireCurrentUser } from "@/lib/auth/session";
 import { getDocumentWithPermissions, requireClassroomMember } from "@/lib/permissions/classroom";
 import { awardPoints } from "@/lib/points";
@@ -14,6 +14,7 @@ import {
 } from "@/lib/storage/documents";
 
 export async function uploadDocumentAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const file = formData.get("document");
@@ -83,6 +84,7 @@ export async function uploadDocumentAction(formData: FormData) {
 }
 
 export async function deleteDocumentAction(formData: FormData) {
+  const prisma = await getDb();
   const user = await requireCurrentUser();
   const classroomId = String(formData.get("classroomId") || "");
   const documentId = String(formData.get("documentId") || "");
