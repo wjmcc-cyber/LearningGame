@@ -1,0 +1,252 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ClassroomRole {
+  MANAGER
+  MEMBER
+}
+
+enum FeedbackValue {
+  LIKE
+  DISLIKE
+}
+
+enum FriendshipStatus {
+  ACCEPTED
+}
+
+enum PointsReason {
+  DOCUMENT_UPLOAD
+  QUIZ_CORRECT
+}
+
+model User {
+  id                  String                @id @default(cuid())
+  email               String                @unique
+  username            String                @unique
+  displayName         String
+  passwordHash        String
+  totalPoints         Int                   @default(0)
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime              @updatedAt
+  classroomMembers    ClassroomMember[]
+  directThreadsA      DirectMessageThread[] @relation("ThreadUserA")
+  directThreadsB      DirectMessageThread[] @relation("ThreadUserB")
+  friendshipsReceived Friendship[]          @relation("FriendshipAddressee")
+  friendshipsRequested Friendship[]         @relation("FriendshipRequester")
+  managedClassrooms   Classroom[]           @relation("ClassroomManager")
+  pointsLedger        PointsLedger[]
+  questionFeedback    QuestionFeedback[]
+  quizAttempts        QuizAttempt[]
+  quizzes             Quiz[]                @relation("QuizCreator")
+  sentClassroomMsgs   ClassroomMessage[]    @relation("ClassroomMessageAuthor")
+  sentDirectMessages  DirectMessage[]
+  sessions            Session[]
+  uploadedDocuments   Document[]            @relation("DocumentUploader")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Classroom {
+  id           String            @id @default(cuid())
+  name         String
+  description  String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  managerId    String
+  documents    Document[]
+  invite       ClassroomInvite?
+  manager      User              @relation("ClassroomManager", fields: [managerId], references: [id])
+  members      ClassroomMember[]
+  messages     ClassroomMessage[]
+  pointsLedger PointsLedger[]
+  quizzes      Quiz[]
+}
+
+model ClassroomMember {
+  id              String        @id @default(cuid())
+  classroomPoints Int           @default(0)
+  createdAt       DateTime      @default(now())
+  role            ClassroomRole @default(MEMBER)
+  classroomId     String
+  userId          String
+  classroom       Classroom     @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, userId])
+}
+
+model ClassroomInvite {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  createdAt   DateTime  @default(now())
+  classroomId String    @unique
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+}
+
+model Document {
+  id           String         @id @default(cuid())
+  originalName String
+  storedName   String
+  mimeType     String
+  extension    String
+  sizeBytes    Int
+  contentHash  String
+  textContent  String
+  createdAt    DateTime       @default(now())
+  classroomId  String
+  uploaderId   String
+  classroom    Classroom      @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  quizLinks    QuizDocument[]
+  uploader     User           @relation("DocumentUploader", fields: [uploaderId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, contentHash])
+}
+
+model Quiz {
+  id            String         @id @default(cuid())
+  title         String
+  createdAt     DateTime       @default(now())
+  classroomId   String
+  createdById   String
+  classroom     Classroom      @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  createdBy     User           @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Cascade)
+  documentLinks QuizDocument[]
+  questions     QuizQuestion[]
+  attempts      QuizAttempt[]
+}
+
+model QuizDocument {
+  id         String   @id @default(cuid())
+  documentId String
+  quizId     String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, documentId])
+}
+
+model QuizQuestion {
+  id           String             @id @default(cuid())
+  prompt       String
+  optionsJson  String
+  correctIndex Int
+  explanation  String?
+  position     Int
+  createdAt    DateTime           @default(now())
+  quizId       String
+  feedback     QuestionFeedback[]
+  quiz         Quiz               @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  responses    QuizResponse[]
+
+  @@unique([quizId, position])
+}
+
+model QuizAttempt {
+  id          String         @id @default(cuid())
+  createdAt   DateTime       @default(now())
+  completedAt DateTime?
+  quizId      String
+  userId      String
+  quiz        Quiz           @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  responses   QuizResponse[]
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, userId])
+}
+
+model QuizResponse {
+  id            String       @id @default(cuid())
+  selectedIndex Int
+  isCorrect     Boolean
+  createdAt     DateTime     @default(now())
+  attemptId     String
+  questionId    String
+  attempt       QuizAttempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question      QuizQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([attemptId, questionId])
+}
+
+model QuestionFeedback {
+  id         String        @id @default(cuid())
+  value      FeedbackValue
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  questionId String
+  userId     String
+  question   QuizQuestion  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  user       User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, questionId])
+}
+
+model Friendship {
+  id          String           @id @default(cuid())
+  pairKey     String           @unique
+  status      FriendshipStatus @default(ACCEPTED)
+  createdAt   DateTime         @default(now())
+  addresseeId String
+  requesterId String
+  addressee   User             @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+  requester   User             @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+}
+
+model DirectMessageThread {
+  id        String          @id @default(cuid())
+  pairKey   String          @unique
+  createdAt DateTime        @default(now())
+  userAId   String
+  userBId   String
+  messages  DirectMessage[]
+  userA     User            @relation("ThreadUserA", fields: [userAId], references: [id], onDelete: Cascade)
+  userB     User            @relation("ThreadUserB", fields: [userBId], references: [id], onDelete: Cascade)
+}
+
+model DirectMessage {
+  id        String              @id @default(cuid())
+  content   String
+  createdAt DateTime            @default(now())
+  senderId  String
+  threadId  String
+  sender    User                @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  thread    DirectMessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+}
+
+model ClassroomMessage {
+  id          String    @id @default(cuid())
+  content     String
+  createdAt   DateTime  @default(now())
+  classroomId String
+  userId      String
+  author      User      @relation("ClassroomMessageAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+}
+
+model PointsLedger {
+  id            String       @id @default(cuid())
+  amount        Int
+  reason        PointsReason
+  referenceId   String
+  referenceType String
+  createdAt     DateTime     @default(now())
+  classroomId   String?
+  userId        String
+  classroom     Classroom?   @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, referenceType, referenceId])
+}
