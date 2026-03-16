@@ -3,6 +3,7 @@ import path from "node:path";
 import { createHash } from "node:crypto";
 import bcrypt from "bcryptjs";
 import { config as loadEnv } from "dotenv";
+import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
 
 loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
@@ -16,7 +17,26 @@ if (!process.env.STORAGE_ROOT && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
   process.env.STORAGE_ROOT = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage");
 }
 
-const prisma = new PrismaClient();
+function resolveLocalDatabaseUrl(databaseUrl) {
+  if (!databaseUrl.startsWith("file:")) {
+    return databaseUrl;
+  }
+
+  const relativePath = databaseUrl.replace("file:", "");
+
+  if (path.isAbsolute(relativePath)) {
+    return databaseUrl;
+  }
+
+  return `file:${path.resolve(process.cwd(), "prisma", relativePath)}`;
+}
+
+const prisma = new PrismaClient({
+  adapter: new PrismaLibSQL({
+    url: resolveLocalDatabaseUrl(process.env.DATABASE_URL),
+    authToken: process.env.TURSO_AUTH_TOKEN,
+  }),
+});
 const storageDir = process.env.STORAGE_ROOT
   ? path.join(process.env.STORAGE_ROOT, "documents")
   : path.join(process.cwd(), "storage", "documents");

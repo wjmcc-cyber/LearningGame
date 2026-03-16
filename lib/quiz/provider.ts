@@ -1,6 +1,7 @@
 import { clampText, normalizeWhitespace } from "@/lib/utils";
 import { generateFallbackQuiz } from "@/lib/quiz/fallback";
 import { generateOpenAIQuiz } from "@/lib/quiz/openai";
+import { getRuntimeConfig } from "@/lib/runtime-config";
 import type { GeneratedQuizQuestion } from "@/types/quiz";
 
 type QuizSourceDocument = {
@@ -36,8 +37,9 @@ function normalizeQuestions(questions: GeneratedQuizQuestion[]) {
 
 export async function generateQuizQuestions(documents: QuizSourceDocument[]) {
   const questionCount = Math.min(5, Math.max(3, documents.length * 2));
+  const runtimeConfig = await getRuntimeConfig();
 
-  if (process.env.OPENAI_API_KEY) {
+  if (runtimeConfig.openAiApiKey) {
     try {
       const questions = normalizeQuestions(await generateOpenAIQuiz(documents, questionCount));
 

@@ -6,7 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "node scripts/start-production.mjs",
-    "lint": "eslint .",
+    "lint": "eslint . --ignore-pattern .open-next --ignore-pattern .wrangler",
+    "cf:typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
+    "cf:build": "opennextjs-cloudflare build",
+    "cf:preview": "opennextjs-cloudflare build && wrangler dev",
+    "cf:deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
     "db:generate": "prisma generate",
     "db:push": "node scripts/db-push.mjs",
     "prisma:push": "node scripts/db-push.mjs",
@@ -14,6 +18,10 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@libsql/client": "^0.17.0",
+    "@opennextjs/cloudflare": "^1.17.1",
+    "@prisma/adapter-d1": "^6.16.3",
+    "@prisma/adapter-libsql": "^6.16.3",
     "@prisma/client": "^6.16.3",
     "bcryptjs": "^3.0.3",
     "dotenv": "^17.2.3",
@@ -25,6 +33,7 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260316.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -32,6 +41,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wrangler": "^4.73.0"
   }
 }

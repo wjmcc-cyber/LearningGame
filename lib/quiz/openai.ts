@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { getRuntimeConfig } from "@/lib/runtime-config";
 import type { GeneratedQuizQuestion } from "@/types/quiz";
 
 type QuizSourceDocument = {
@@ -67,13 +68,14 @@ export async function generateOpenAIQuiz(
   documents: QuizSourceDocument[],
   questionCount = 5,
 ): Promise<GeneratedQuizQuestion[]> {
-  const apiKey = process.env.OPENAI_API_KEY;
+  const runtimeConfig = await getRuntimeConfig();
+  const apiKey = runtimeConfig.openAiApiKey;
 
   if (!apiKey) {
     throw new Error("Missing OPENAI_API_KEY.");
   }
 
-  const model = process.env.OPENAI_MODEL || "gpt-5-mini";
+  const model = runtimeConfig.openAiModel;
   const context = documents
     .map(
       (document, index) =>

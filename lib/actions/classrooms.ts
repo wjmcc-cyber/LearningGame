@@ -1,6 +1,5 @@
 "use server";
 
-import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
@@ -19,7 +18,9 @@ const messageSchema = z.object({
 });
 
 function makeInviteCode() {
-  return randomBytes(12).toString("hex");
+  return Array.from(crypto.getRandomValues(new Uint8Array(12)), (byte) =>
+    byte.toString(16).padStart(2, "0"),
+  ).join("");
 }
 
 export async function createClassroomAction(formData: FormData) {

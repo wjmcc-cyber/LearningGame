@@ -1,21 +1,24 @@
-import { access, mkdir, unlink, writeFile } from "fs/promises";
-import path from "path";
-import { pathToFileURL } from "url";
-import { PDFParse } from "pdf-parse";
+import { getCloudflareEnv } from "@/lib/cloudflare";
 import { normalizeWhitespace, sha256Hex } from "@/lib/utils";
 
 const SUPPORTED_EXTENSIONS = new Set(["txt", "md", "pdf"]);
-const STORAGE_DIR = process.env.STORAGE_ROOT
-  ? path.join(process.env.STORAGE_ROOT, "documents")
-  : process.env.RAILWAY_VOLUME_MOUNT_PATH
-    ? path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage", "documents")
-    : path.join(process.cwd(), "storage", "documents");
-const PDF_WORKER_PATH = pathToFileURL(
-  path.join(process.cwd(), "node_modules", "pdf-parse", "dist", "pdf-parse", "cjs", "pdf.worker.mjs"),
-).href;
 
 function getExtension(filename: string) {
   return filename.split(".").pop()?.toLowerCase() ?? "";
+}
+
+async function getLocalStorageDir() {
+  const path = await import("path");
+
+  if (process.env.STORAGE_ROOT) {
+    return path.join(process.env.STORAGE_ROOT, "documents");
+  }
+
+  if (process.env.RAILWAY_VOLUME_MOUNT_PATH) {
+    return path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage", "documents");
+  }
+
+  return path.join(process.cwd(), "storage", "documents");
 }
 
 async function extractText(buffer: Buffer, extension: string) {
@@ -24,7 +27,21 @@ async function extractText(buffer: Buffer, extension: string) {
   }
 
   if (extension === "pdf") {
-    PDFParse.setWorker(PDF_WORKER_PATH);
+    const cloudflareEnv = await getCloudflareEnv();
+
+    if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
+      throw new Error("PDF uploads are not stable in the Cloudflare runtime yet. Use TXT or MD for now.");
+    }
+
+    const path = await import("path");
+    const { pathToFileURL } = await import("url");
+    const { PDFParse } = await import("pdf-parse");
+
+    const pdfWorkerPath = pathToFileURL(
+      path.join(process.cwd(), "node_modules", "pdf-parse", "dist", "pdf-parse", "cjs", "pdf.worker.mjs"),
+    ).href;
+
+    PDFParse.setWorker(pdfWorkerPath);
     const parser = new PDFParse({ data: buffer });
 
     try {
@@ -70,22 +87,49 @@ export async function parseStudyDocument(file: File) {
 }
 
 export async function saveStudyDocument(buffer: Buffer, contentHash: string, extension: string) {
-  await mkdir(STORAGE_DIR, { recursive: true });
   const storedName = `${contentHash}.${extension}`;
-  const filePath = path.join(STORAGE_DIR, storedName);
+  const cloudflareEnv = await getCloudflareEnv();
+
+  if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
+    await cloudflareEnv.STUDY_DOCUMENTS_BUCKET.put(storedName, buffer, {
+      httpMetadata: {
+        contentType: extension === "md" ? "text/markdown" : extension === "txt" ? "text/plain" : "application/pdf",
+      },
+    });
+
+    return storedName;
+  }
+
+  const storageDir = await getLocalStorageDir();
+  const fs = await import("fs/promises");
+  const path = await import("path");
+  const filePath = path.join(storageDir, storedName);
+
+  await fs.mkdir(storageDir, { recursive: true });
 
   try {
-    await access(filePath);
+    await fs.access(filePath);
   } catch {
-    await writeFile(filePath, buffer);
+    await fs.writeFile(filePath, buffer);
   }
 
   return storedName;
 }
 
 export async function deleteStudyDocument(storedName: string) {
+  const cloudflareEnv = await getCloudflareEnv();
+
+  if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
+    await cloudflareEnv.STUDY_DOCUMENTS_BUCKET.delete(storedName);
+    return;
+  }
+
+  const storageDir = await getLocalStorageDir();
+  const fs = await import("fs/promises");
+  const path = await import("path");
+
   try {
-    await unlink(path.join(STORAGE_DIR, storedName));
+    await fs.unlink(path.join(storageDir, storedName));
   } catch {
     // Ignore missing files for local MVP storage.
   }

@@ -2,17 +2,16 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db";
-
-const SESSION_COOKIE_NAME = process.env.SESSION_COOKIE_NAME || "study_league_session";
-const SESSION_TTL_DAYS = Number(process.env.SESSION_TTL_DAYS || 30);
+import { getRuntimeConfig } from "@/lib/runtime-config";
 
 function buildSessionToken() {
   return `${crypto.randomUUID().replaceAll("-", "")}${crypto.randomUUID().replaceAll("-", "")}`;
 }
 
 export const getCurrentSession = cache(async () => {
+  const { sessionCookieName } = await getRuntimeConfig();
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const token = cookieStore.get(sessionCookieName)?.value;
 
   if (!token) {
     return null;
@@ -60,7 +59,8 @@ export async function requireCurrentUser() {
 }
 
 export async function createSession(userId: string) {
-  const expiresAt = new Date(Date.now() + SESSION_TTL_DAYS * 24 * 60 * 60 * 1000);
+  const { sessionCookieName, sessionTtlDays } = await getRuntimeConfig();
+  const expiresAt = new Date(Date.now() + sessionTtlDays * 24 * 60 * 60 * 1000);
   const token = buildSessionToken();
   const cookieStore = await cookies();
 
@@ -72,7 +72,7 @@ export async function createSession(userId: string) {
     },
   });
 
-  cookieStore.set(SESSION_COOKIE_NAME, token, {
+  cookieStore.set(sessionCookieName, token, {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
@@ -82,8 +82,9 @@ export async function createSession(userId: string) {
 }
 
 export async function clearSession() {
+  const { sessionCookieName } = await getRuntimeConfig();
   const cookieStore = await cookies();
-  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  const token = cookieStore.get(sessionCookieName)?.value;
 
   if (token) {
     await prisma.session.deleteMany({
@@ -91,5 +92,5 @@ export async function clearSession() {
     });
   }
 
-  cookieStore.delete(SESSION_COOKIE_NAME);
+  cookieStore.delete(sessionCookieName);
 }

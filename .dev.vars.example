@@ -1,0 +1,5 @@
+OPENAI_API_KEY=""
+OPENAI_MODEL="gpt-5-mini"
+SESSION_COOKIE_NAME="study_league_session"
+SESSION_TTL_DAYS="30"
+SITE_URL="http://127.0.0.1:8787"
