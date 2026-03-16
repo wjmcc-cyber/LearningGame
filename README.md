@@ -31,7 +31,7 @@ Study League is a student-run, gamified university study platform MVP built with
 
 ## Environment
 
-Create `.env` with:
+Create `.env.local` with:
 
 ```env
 DATABASE_URL="file:./dev.db"
@@ -41,16 +41,16 @@ OPENAI_API_KEY=""
 OPENAI_MODEL="gpt-5-mini"
 ```
 
-`OPENAI_API_KEY` is optional. If it is blank, quiz generation falls back automatically to a deterministic local generator.
+`OPENAI_API_KEY` is optional. If it is blank, quiz generation falls back automatically to a deterministic local generator. Prisma is configured to load `.env.local` first and `.env` second.
 
 ## Exact run commands
 
 Windows PowerShell in this repo:
 
 ```powershell
-Copy-Item .env.example .env -Force
+Copy-Item .env.example .env.local -Force
 npm.cmd install
-npm.cmd run db:generate
+npx prisma generate
 npm.cmd run db:push
 npm.cmd run db:seed
 npm.cmd run dev

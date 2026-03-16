@@ -2,7 +2,11 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import bcrypt from "bcryptjs";
+import { config as loadEnv } from "dotenv";
 import { PrismaClient } from "@prisma/client";
+
+loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
+loadEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
 
 const prisma = new PrismaClient();
 const storageDir = path.join(process.cwd(), "storage", "documents");

@@ -1,7 +1,10 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { DatabaseSync } from "node:sqlite";
-import "dotenv/config";
+import { config as loadEnv } from "dotenv";
+
+loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
+loadEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
 
 function resolveDatabasePath(databaseUrl) {
   if (!databaseUrl?.startsWith("file:")) {
