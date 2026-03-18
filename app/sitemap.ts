@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getSiteUrl } from "@/lib/site-url";
 
-const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+const siteUrl = getSiteUrl();
 
 const staticRoutes = [
   "/",

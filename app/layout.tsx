@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { AppShell } from "@/components/app-shell";
 import { getCurrentUser } from "@/lib/auth/session";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
-const siteUrl = process.env.SITE_URL || "http://localhost:3000";
+const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Study League",

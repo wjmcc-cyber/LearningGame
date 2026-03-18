@@ -54,6 +54,7 @@ Notes:
 - `DATABASE_URL` should use the Supabase pooled connection string.
 - `SUPABASE_SERVICE_ROLE_KEY` is server-only and must never be exposed to the browser.
 - If the Supabase storage variables are missing locally, document files fall back to `storage/documents/`.
+- On Vercel, `SITE_URL` can be left blank if you enable Vercel system environment variables; the app falls back to `VERCEL_PROJECT_PRODUCTION_URL` and then `VERCEL_URL`.
 
 ## Exact Run Commands
 
@@ -104,6 +105,45 @@ The simplest hosted stack after this migration is:
 - Supabase for Postgres and Storage
 
 Set the same environment variables from `.env.local` in your hosting provider.
+
+## Deploy on Vercel
+
+Official docs:
+
+- Vercel GitHub import: https://vercel.com/docs/git/vercel-for-github
+- Vercel environment variables: https://vercel.com/docs/projects/environment-variables
+- Vercel system environment variables: https://vercel.com/docs/environment-variables/system-environment-variables
+- Supabase + Prisma: https://supabase.com/docs/guides/database/prisma
+- Supabase Storage: https://supabase.com/docs/guides/storage
+
+Recommended setup:
+
+1. In Vercel, import the GitHub repo as a Next.js project.
+2. Add these environment variables in Vercel Project Settings:
+   - `DATABASE_URL`
+   - `SESSION_COOKIE_NAME`
+   - `SESSION_TTL_DAYS`
+   - `OPENAI_API_KEY` if you want OpenAI quiz generation
+   - `OPENAI_MODEL`
+   - `SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `SUPABASE_STORAGE_BUCKET`
+   - optional `SITE_URL`
+3. In Vercel Project Settings -> Environment Variables, enable system environment variables exposure if you want automatic URL detection.
+4. In Supabase, create the `study-documents` storage bucket or set a different bucket name in `SUPABASE_STORAGE_BUCKET`.
+5. Before the first production test, run locally against the same Supabase project:
+
+```powershell
+npm.cmd run db:push
+npm.cmd run db:seed
+```
+
+6. Push the branch and let Vercel build/deploy it.
+
+Important:
+
+- Production document uploads require Supabase Storage. The app now rejects production uploads if it would otherwise fall back to local disk.
+- If you want canonical metadata to always use your custom production domain, set `SITE_URL` explicitly in Vercel even though the app can also derive it from Vercel system variables.
 
 ## Demo Credentials
 

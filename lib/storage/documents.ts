@@ -17,6 +17,14 @@ async function getLocalStorageDir() {
   return path.join(process.cwd(), "storage", "documents");
 }
 
+function assertWritableStorageFallback() {
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(
+      "Supabase storage is required in production. Set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, and SUPABASE_STORAGE_BUCKET.",
+    );
+  }
+}
+
 async function extractText(buffer: Buffer, extension: string) {
   if (extension === "txt" || extension === "md") {
     return normalizeWhitespace(buffer.toString("utf8"));
@@ -95,6 +103,7 @@ export async function saveStudyDocument(buffer: Buffer, contentHash: string, ext
   }
 
   const storageDir = await getLocalStorageDir();
+  assertWritableStorageFallback();
   const fs = await import("fs/promises");
   const path = await import("path");
   const filePath = path.join(storageDir, storedName);
@@ -124,6 +133,7 @@ export async function deleteStudyDocument(storedName: string) {
   }
 
   const storageDir = await getLocalStorageDir();
+  assertWritableStorageFallback();
   const fs = await import("fs/promises");
   const path = await import("path");
 
