@@ -1,45 +1,61 @@
-import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createHash } from "node:crypto";
+import { mkdir, writeFile } from "node:fs/promises";
 import bcrypt from "bcryptjs";
 import { config as loadEnv } from "dotenv";
-import { PrismaLibSQL } from "@prisma/adapter-libsql";
 import { PrismaClient } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
 
 loadEnv({ path: path.join(process.cwd(), ".env.local"), quiet: true });
 loadEnv({ path: path.join(process.cwd(), ".env"), quiet: true });
+const prisma = new PrismaClient();
 
-if (!process.env.DATABASE_URL && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
-  process.env.DATABASE_URL = `file:${path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "dev.db")}`;
-}
-
-if (!process.env.STORAGE_ROOT && process.env.RAILWAY_VOLUME_MOUNT_PATH) {
-  process.env.STORAGE_ROOT = path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage");
-}
-
-function resolveLocalDatabaseUrl(databaseUrl) {
-  if (!databaseUrl.startsWith("file:")) {
-    return databaseUrl;
+function getStorageDir() {
+  if (process.env.STORAGE_ROOT) {
+    return path.join(process.env.STORAGE_ROOT, "documents");
   }
 
-  const relativePath = databaseUrl.replace("file:", "");
-
-  if (path.isAbsolute(relativePath)) {
-    return databaseUrl;
-  }
-
-  return `file:${path.resolve(process.cwd(), "prisma", relativePath)}`;
+  return path.join(process.cwd(), "storage", "documents");
 }
 
-const prisma = new PrismaClient({
-  adapter: new PrismaLibSQL({
-    url: resolveLocalDatabaseUrl(process.env.DATABASE_URL),
-    authToken: process.env.TURSO_AUTH_TOKEN,
-  }),
-});
-const storageDir = process.env.STORAGE_ROOT
-  ? path.join(process.env.STORAGE_ROOT, "documents")
-  : path.join(process.cwd(), "storage", "documents");
+function getSupabaseAdmin() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return null;
+  }
+
+  return createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  });
+}
+
+async function saveSeedDocument(content, contentHash, extension) {
+  const storedName = `${contentHash}.${extension}`;
+  const buffer = Buffer.from(content, "utf8");
+  const supabase = getSupabaseAdmin();
+
+  if (supabase) {
+    const bucket = process.env.SUPABASE_STORAGE_BUCKET || "study-documents";
+    const contentType = extension === "md" ? "text/markdown" : extension === "txt" ? "text/plain" : "application/pdf";
+    const { error } = await supabase.storage.from(bucket).upload(storedName, buffer, {
+      contentType,
+      upsert: true,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return storedName;
+  }
+
+  const storageDir = getStorageDir();
+  await mkdir(storageDir, { recursive: true });
+  await writeFile(path.join(storageDir, storedName), content, "utf8");
+  return storedName;
+}
 
 function hashContent(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -88,9 +104,6 @@ async function awardPoints(tx, { userId, classroomId, amount, reason, referenceT
 }
 
 async function main() {
-  await rm(storageDir, { recursive: true, force: true });
-  await mkdir(storageDir, { recursive: true });
-
   await prisma.questionFeedback.deleteMany();
   await prisma.quizResponse.deleteMany();
   await prisma.quizAttempt.deleteMany();
@@ -184,8 +197,7 @@ Gregor Mendel used pea plants to describe dominant and recessive inheritance pat
 
   for (const document of documents) {
     const contentHash = hashContent(document.content);
-    const storedName = `${contentHash}.${document.extension}`;
-    await writeFile(path.join(storageDir, storedName), document.content, "utf8");
+    const storedName = await saveSeedDocument(document.content, contentHash, document.extension);
 
     const created = await prisma.document.create({
       data: {

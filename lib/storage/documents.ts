@@ -1,4 +1,4 @@
-import { getCloudflareEnv } from "@/lib/cloudflare";
+import { getSupabaseAdmin, getSupabaseStorageBucket } from "@/lib/supabase";
 import { normalizeWhitespace, sha256Hex } from "@/lib/utils";
 
 const SUPPORTED_EXTENSIONS = new Set(["txt", "md", "pdf"]);
@@ -14,10 +14,6 @@ async function getLocalStorageDir() {
     return path.join(process.env.STORAGE_ROOT, "documents");
   }
 
-  if (process.env.RAILWAY_VOLUME_MOUNT_PATH) {
-    return path.join(process.env.RAILWAY_VOLUME_MOUNT_PATH, "storage", "documents");
-  }
-
   return path.join(process.cwd(), "storage", "documents");
 }
 
@@ -27,12 +23,6 @@ async function extractText(buffer: Buffer, extension: string) {
   }
 
   if (extension === "pdf") {
-    const cloudflareEnv = await getCloudflareEnv();
-
-    if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
-      throw new Error("PDF uploads are not stable in the Cloudflare runtime yet. Use TXT or MD for now.");
-    }
-
     const path = await import("path");
     const { pathToFileURL } = await import("url");
     const { PDFParse } = await import("pdf-parse");
@@ -88,14 +78,18 @@ export async function parseStudyDocument(file: File) {
 
 export async function saveStudyDocument(buffer: Buffer, contentHash: string, extension: string) {
   const storedName = `${contentHash}.${extension}`;
-  const cloudflareEnv = await getCloudflareEnv();
+  const supabase = getSupabaseAdmin();
 
-  if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
-    await cloudflareEnv.STUDY_DOCUMENTS_BUCKET.put(storedName, buffer, {
-      httpMetadata: {
-        contentType: extension === "md" ? "text/markdown" : extension === "txt" ? "text/plain" : "application/pdf",
-      },
+  if (supabase) {
+    const { error } = await supabase.storage.from(getSupabaseStorageBucket()).upload(storedName, buffer, {
+      contentType:
+        extension === "md" ? "text/markdown" : extension === "txt" ? "text/plain" : "application/pdf",
+      upsert: true,
     });
+
+    if (error) {
+      throw new Error(`Supabase storage upload failed: ${error.message}`);
+    }
 
     return storedName;
   }
@@ -117,10 +111,15 @@ export async function saveStudyDocument(buffer: Buffer, contentHash: string, ext
 }
 
 export async function deleteStudyDocument(storedName: string) {
-  const cloudflareEnv = await getCloudflareEnv();
+  const supabase = getSupabaseAdmin();
 
-  if (cloudflareEnv?.STUDY_DOCUMENTS_BUCKET) {
-    await cloudflareEnv.STUDY_DOCUMENTS_BUCKET.delete(storedName);
+  if (supabase) {
+    const { error } = await supabase.storage.from(getSupabaseStorageBucket()).remove([storedName]);
+
+    if (error) {
+      throw new Error(`Supabase storage delete failed: ${error.message}`);
+    }
+
     return;
   }
 
